@@ -16,7 +16,7 @@ company_counts['is_liga_smart'] = company_counts['Наименование'].app
 )
 company_counts_sorted = company_counts.sort_values(
     by=['Количество', 'is_liga_smart'],
-    ascending=[False, False]
+    ascending=[True, True]
 ).reset_index(drop=True)
 
 colors_sku = ['#50C878' if name == 'ООО Лига Смарт' else 'skyblue'
@@ -24,27 +24,8 @@ colors_sku = ['#50C878' if name == 'ООО Лига Смарт' else 'skyblue'
 
 
 
-
-
-
-
-
-# # Загрузка данных для второго графика (закупки по ФЗ 44/223)
-# df_sales = pd.read_excel(file_path, sheet_name="count sales")
-# # Переименуем столбец для удобства
-# df_sales.columns = ['Наименование', 'Кол-во записей о закупках']
-# # Сортируем по количеству записей (убывание)
-# df_sales_sorted = df_sales.sort_values('Кол-во записей о закупках', ascending=False).reset_index(drop=True)
-
-# # Определяем цвета для второго графика (аналогично первому)
-# colors_sales = ['#50C878' if name == 'ООО Лига Смарт' else 'lightcoral'
-#              for name in df_sales_sorted['Наименование']]
-
-
-
 # Загрузка данных для второго графика
 df_sales = pd.read_excel(file_path, sheet_name="count sales")
-#df_sales.columns = ['Наименование', 'Кол-во записей о закупок']
 
 # Оставляем только первые 12 строк
 df_sales = df_sales.iloc[:12].copy()
@@ -57,31 +38,21 @@ df_sales = df_sales.rename(columns={
 
 
 
-print(df_sales.columns)
-
-
-
 # Исправление типов данных
 df_sales['Кол-во записей о закупках'] = pd.to_numeric(
     df_sales['Кол-во записей о закупках'],
     errors='coerce'
 )
 
-
-
 df_sales = df_sales.dropna(subset=['Кол-во записей о закупках'])
 
 df_sales_sorted = df_sales.sort_values(
     'Кол-во записей о закупках',
-    ascending=False
+    ascending=True
 ).reset_index(drop=True)
 
 colors_sales = ['#50C878' if name == 'ООО Лига Смарт' else 'lightcoral'
              for name in df_sales_sorted['Наименование']]
-
-
-
-
 
 
 
@@ -93,7 +64,7 @@ fig = make_subplots(
         'Количество панелей 75″ у конкурентов',
         'Закупки по ФЗ 44/223 (с 2020 г.)'
     ),
-    horizontal_spacing=0.1
+    horizontal_spacing=0.2  # Уменьшили расстояние между графиками
 )
 
 # Добавляем первый график (левый)
@@ -128,21 +99,23 @@ fig.add_trace(
     row=1, col=2
 )
 
-# Настройка общего макета
+# Настройка общего макета — увеличили ширину до 1600 px
 fig.update_layout(
     height=600,
-    width=1200,
+    width=1600,  # Увеличили ширину с 1200 до 1600 px
     showlegend=False,
     title_text="Анализ конкурентного положения: ассортимент и закупки",
     title_x=0.5,
-    margin=dict(l=150, r=50, t=80, b=80)
+    margin=dict(l=150, r=50, t=80, b=80)  # Оставили прежние отступы
 )
+
 
 # Общие настройки для обеих осей Y (чтобы подписи не обрезались)
 fig.update_yaxes(
     tickfont=dict(size=10),
     title_font=dict(size=12),
-    categoryorder='array'
+    categoryorder='total ascending',
+    automargin=True
 )
 
 # Индивидуальные настройки для осей X
@@ -152,8 +125,3 @@ fig.update_xaxes(title_text='Кол-во закупок', row=1, col=2)
 # Отображение графика
 fig.show()
 
-# Вывод данных в консоль для проверки
-print("\nДанные для графика панелей 75″:")
-print(company_counts_sorted[['Наименование', 'Количество']])
-print("\nДанные для графика закупок:")
-print(df_sales_sorted)
